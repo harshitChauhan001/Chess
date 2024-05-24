@@ -13,7 +13,7 @@ function Home() {
     setUniqueKey(key);
     setShowKey(true);
     
-    const result = await fetch('http://localhost:3001/api/set-key', {
+    const result = await fetch('https://chess-redis-server.onrender.com/api/set-key', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ function Home() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3001/api/enter-key?key=${enterKey}`);
+      const response = await fetch(`https://chess-redis-server.onrender.com/api/enter-key?key=${enterKey}`);
       const data = await response.json();
       if (data.exists) {
         if (data.full) {
