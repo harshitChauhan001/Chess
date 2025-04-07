@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import "./Home.css";
 
@@ -6,13 +6,18 @@ function Home() {
   const [uniqueKey, setUniqueKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [enterKey, setEnterKey] = useState("");
+  const [countdown, setCountdown] = useState(5);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
   const navigate = useNavigate();
 
   const generateUniqueKey = async () => {
     const key = Math.random().toString(36).substr(2, 9);
     setUniqueKey(key);
     setShowKey(true);
-    
+    setCountdown(5);
+    setIsButtonDisabled(true);
+
     const result = await fetch('https://chess-redis-server.onrender.com/api/set-key', {
       method: 'POST',
       headers: {
@@ -21,10 +26,20 @@ function Home() {
       body: JSON.stringify({ key }),
     });
 
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev === 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
 
     setTimeout(() => {
       setShowKey(false);
       navigate(`/game/${key}`);
+      setIsButtonDisabled(false);
     }, 5000);
   };
 
@@ -57,13 +72,15 @@ function Home() {
       <div className="chess-options">
         <div className="generate-key">
           Create a Game
-          <button onClick={generateUniqueKey}>New game</button>
+          <button onClick={generateUniqueKey} disabled={isButtonDisabled}>
+            {isButtonDisabled ? 'Please wait...' : 'New game'}
+          </button>
           {showKey && (
             <div className='redirect'>
               <p>
                 Your unique key: <strong>{uniqueKey}</strong>
               </p>
-              <p>Redirecting in 5 seconds...</p>
+              <p>Redirecting in {countdown} seconds...</p>
             </div>
           )}
         </div>
@@ -84,3 +101,4 @@ function Home() {
 }
 
 export default Home;
+git 
